@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local user configurations & tokens (CRITICAL: Do not commit!)
+settings.json
+history.json
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Build & Distribution
+dist/
+build/
+*.egg-info/
+*.spec
+
+# Log files
+*.log

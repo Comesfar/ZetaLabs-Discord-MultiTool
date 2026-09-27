@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZetaLabs Discord Suite</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ===== SPLASH SCREEN & KURULUM ===== -->
+    <div id="splashScreen">
+        <div class="splash-content">
+            <svg viewBox="0 0 24 24" fill="none" stroke="url(#zetaGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="splash-logo">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <h1 class="splash-title">ZetaLabs Suite</h1>
+            <div id="splashLoading" class="splash-loading">Sistem Yükleniyor...</div>
+            
+            <div id="setupForm" class="setup-form" style="display: none;">
+                <h2>İlk Kurulum</h2>
+                <p>Başlamak için lütfen varsayılan tokenlerinizi girin. Bu bilgiler sadece bilgisayarınızda saklanır.</p>
+                <div class="form-group text-left">
+                    <label>Bot Token</label>
+                    <input type="password" id="setupBotToken" class="zeta-input" placeholder="MTE...">
+                </div>
+                <div class="form-group text-left">
+                    <label>Self (Kullanıcı) Token</label>
+                    <input type="password" id="setupSelfToken" class="zeta-input" placeholder="Kullanıcı tokeni...">
+                </div>
+                <button class="zeta-btn primary" onclick="completeSetup()">Kaydet ve Başla</button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="app-wrapper">
+        <nav class="sidebar">
+            <div class="brand">
+                <svg viewBox="0 0 24 24" fill="none" stroke="url(#zetaGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="zeta-logo">
+                    <defs>
+                        <linearGradient id="zetaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00e676" />
+                            <stop offset="100%" stop-color="#5865F2" />
+                        </linearGradient>
+                    </defs>
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                <span>ZetaLabs</span>
+            </div>
+
+            <div class="menu-items">
+                <button class="nav-btn active" onclick="switchTab('tokenTab', this)">
+                    <span class="icon">🔑</span> Token Doğrulayıcı
+                </button>
+                <button class="nav-btn" onclick="switchTab('bulkTab', this)">
+                    <span class="icon">🔍</span> Toplu Checker
+                </button>
+                <button class="nav-btn" onclick="switchTab('assetTab', this)">
+                    <span class="icon">🖼️</span> Asset İndirici
+                </button>
+                <button class="nav-btn" onclick="switchTab('userDetailTab', this)">
+                    <span class="icon">📊</span> Hesap Detay
+                </button>
+                <button class="nav-btn" onclick="switchTab('guildTab', this)">
+                    <span class="icon">🛡️</span> Sunucu Bilgi
+                </button>
+                <button class="nav-btn" onclick="switchTab('vanityTab', this)">
+                    <span class="icon">🔗</span> URL Sorgulama
+                </button>
+                <button class="nav-btn" onclick="switchTab('webhookTab', this)">
+                    <span class="icon">🪝</span> Webhook Yöneticisi
+                </button>
+                <button class="nav-btn" onclick="switchTab('inviteTab', this)">
+                    <span class="icon">🔗</span> Davet Çözümleyici
+                </button>
+                <button class="nav-btn" onclick="switchTab('snowflakeTab', this)">
+                    <span class="icon">❄️</span> Snowflake Decoder
+                </button>
+                <button class="nav-btn" onclick="switchTab('tokenDecTab', this)">
+                    <span class="icon">🔓</span> Token Decoder
+                </button>
+                <button class="nav-btn" onclick="switchTab('emojiTab', this)">
+                    <span class="icon">😀</span> Emoji İndirici
+                </button>
+                <button class="nav-btn" onclick="switchTab('clonerTab', this)">
+                    <span class="icon">🔄</span> Server Cloner
+                </button>
+                <button class="nav-btn" onclick="switchTab('historyTab', this)">
+                    <span class="icon">📝</span> Geçmiş
+                </button>
+                <button class="nav-btn" onclick="switchTab('settingsTab', this)" style="margin-top: auto;">
+                    <span class="icon">⚙️</span> Ayarlar
+                </button>
+            </div>
+            
+            <div class="sidebar-footer">
+                <p>v4.0 - Ghost Engine</p>
+            </div>
+        </nav>
+
+        <main class="content-area">
+            
+            <!-- ===== TOKEN VALIDATOR ===== -->
+            <section id="tokenTab" class="glass-panel active">
+                <div class="panel-header">
+                    <h2>Bot & Self Token Validator</h2>
+                    <p>Discord token'larının geçerliliğini kontrol edin. (Boş bırakırsanız ayarlardaki token kullanılır)</p>
+                </div>
+                <div class="row">
+                    <div class="form-group half">
+                        <label>Token Türü</label>
+                        <select id="tokenType" class="zeta-input">
+                            <option value="bot">Normal Bot Token</option>
+                            <option value="user">Self Bot (Kullanıcı) Token</option>
+                        </select>
+                    </div>
+                    <div class="form-group half">
+                        <label>Sorgulanacak Token *</label>
+                        <input type="text" id="tokenTargetInput" class="zeta-input" placeholder="Token giriniz...">
+                    </div>
+                </div>
+                <button class="zeta-btn primary" onclick="runTokenCheck()">Sorgula</button>
+                <div id="valResult" class="result-box glow-idle">Bekleniyor...</div>
+            </section>
+
+            <!-- ===== TOPLU TOKEN CHECKER ===== -->
+            <section id="bulkTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>Toplu Token Checker</h2>
+                    <p>Birden fazla token'ı aynı anda kontrol edin. Her satıra bir token girin veya .txt dosyasından yükleyin.</p>
+                </div>
+                <div class="form-group">
+                    <label>Token Türü</label>
+                    <select id="bulkTokenType" class="zeta-input">
+                        <option value="bot">Bot Token</option>
+                        <option value="user">Self Token</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tokenler (her satıra bir tane)</label>
+                    <textarea id="bulkTokensInput" class="zeta-input zeta-textarea" rows="6" placeholder="Token1&#10;Token2&#10;Token3&#10;..."></textarea>
+                </div>
+                <div class="btn-row">
+                    <button class="zeta-btn secondary" onclick="loadTokensFile()">📁 Dosyadan Yükle</button>
+                    <button class="zeta-btn primary" onclick="runBulkCheck()">🔍 Toplu Kontrol Başlat</button>
+                </div>
+                <div id="bulkResult" class="result-box glow-idle">
+                    <div id="bulkStatusText">Aksiyon bekleniyor...</div>
+                    <div id="bulkProgressBar" class="progress-bar-wrapper" style="display:none;">
+                        <div class="progress-bar-track">
+                            <div id="bulkProgressFill" class="progress-bar-fill"></div>
+                        </div>
+                        <span id="bulkProgressText" class="progress-text">0%</span>
+                    </div>
+                    <div id="bulkResultsList" class="bulk-results-list" style="display:none;"></div>
+                </div>
+            </section>
+
+            <!-- ===== ASSET İNDİRİCİ ===== -->
+            <section id="assetTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>Asset Downloader</h2>
+                    <p>Avatar ve afişleri çekin, bilgisayarınıza kaydedin. (Boş bırakırsanız ayarlardaki token kullanılır)</p>
+                </div>
+                <div class="row">
+                    <div class="form-group half">
+                        <label>Bağlantı Türü</label>
+                        <select id="assetTokenType" class="zeta-input">
+                            <option value="bot">Bot Token</option>
+                            <option value="user">Self Token</option>
+                        </select>
+                    </div>
+                    <div class="form-group half">
+                        <label>Hedef Türü</label>
+                        <select id="assetTargetType" class="zeta-input">
+                            <option value="user">Kişi (User)</option>
+                            <option value="guild">Sunucu (Guild)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Hedef ID *</label>
+                    <input type="text" id="assetIdInput" class="zeta-input" placeholder="Örn: 1234567890...">
+                </div>
+                <button class="zeta-btn success" onclick="runAssetFetch()">Görselleri Çek</button>
+                <div class="result-box glow-idle mt-20">
+                    <div id="assetStatusText">Aksiyon bekleniyor...</div>
+                    <div id="imageContainer" class="image-grid" style="display: none;">
+                        <div class="img-card">
+                            <span>Avatar / İkon</span>
+                            <img id="imgAvatar" src="" alt="Avatar">
+                            <div class="img-card-actions">
+                                <a id="linkAvatar" href="" target="_blank" class="download-link">🔗 Tam Boyut</a>
+                                <button id="btnDownloadAvatar" class="download-link download-btn" onclick="downloadAsset('avatar')" style="display:none;">💾 Kaydet</button>
+                            </div>
+                        </div>
+                        <div class="img-card">
+                            <span>Afiş (Banner)</span>
+                            <img id="imgBanner" src="" alt="Banner">
+                            <div class="img-card-actions">
+                                <a id="linkBanner" href="" target="_blank" class="download-link">🔗 Tam Boyut</a>
+                                <button id="btnDownloadBanner" class="download-link download-btn" onclick="downloadAsset('banner')" style="display:none;">💾 Kaydet</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== KULLANICI DETAY PANELİ ===== -->
+            <section id="userDetailTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>Hesap Detay Paneli</h2>
+                    <p>Token ile giriş yapılan hesabın detaylı bilgilerini görüntüleyin.</p>
+                </div>
+                <div class="row">
+                    <div class="form-group half">
+                        <label>Sorgu Türü</label>
+                        <select id="userDetailQueryType" class="zeta-input" onchange="toggleUserDetailInputs()">
+                            <option value="token">Token İle (Özel Bilgiler)</option>
+                            <option value="id">Kullanıcı ID İle (Herkese Açık)</option>
+                        </select>
+                    </div>
+                    <div class="form-group half" id="userDetailTokenGroup">
+                        <label>Token Türü</label>
+                        <select id="userDetailType" class="zeta-input">
+                            <option value="bot">Bot Token</option>
+                            <option value="user">Self Token</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" id="userDetailInputGroup">
+                    <label id="userDetailInputLabel">Sorgulanacak Token *</label>
+                    <input type="text" id="userDetailTokenInput" class="zeta-input" placeholder="Token giriniz...">
+                </div>
+                <button class="zeta-btn primary" onclick="runUserDetail()">📊 Bilgileri Çek</button>
+                <div id="userDetailResult" class="result-box glow-idle mt-20">
+                    <div id="userDetailStatus">Aksiyon bekleniyor...</div>
+                    <div id="userDetailCard" class="detail-card" style="display:none;">
+                        <div class="detail-card-banner" id="userBannerArea"></div>
+                        <div class="detail-card-header">
+                            <img id="userDetailAvatar" class="detail-avatar" src="" alt="">
+                            <div class="detail-name-area">
+                                <h3 id="userDetailName">—</h3>
+                                <span id="userDetailTag" class="detail-tag">—</span>
+                            </div>
+                        </div>
+                        <div id="userBadges" class="badge-list"></div>
+                        <div class="detail-grid">
+                            <div class="detail-stat">
+                                <span class="stat-label">ID</span>
+                                <span class="stat-value" id="userDetailId">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Oluşturulma</span>
+                                <span class="stat-value" id="userDetailCreated">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Nitro</span>
+                                <span class="stat-value" id="userDetailNitro">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">2FA (MFA)</span>
+                                <span class="stat-value" id="userDetailMfa">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Dil</span>
+                                <span class="stat-value" id="userDetailLocale">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">E-posta</span>
+                                <span class="stat-value" id="userDetailEmail">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Sunucu Sayısı</span>
+                                <span class="stat-value" id="userDetailGuilds">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Doğrulanmış</span>
+                                <span class="stat-value" id="userDetailVerified">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Telefon</span>
+                                <span class="stat-value" id="userDetailPhone">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Arkadaşlar</span>
+                                <span class="stat-value" id="userDetailFriends">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Engellenenler</span>
+                                <span class="stat-value" id="userDetailBlocked">—</span>
+                            </div>
+                        </div>
+                        <div id="userConnectionsTitle" style="display:none; margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                            <h4 style="font-size: 12px; color: #a1a1aa; text-transform: uppercase; margin-bottom: 8px;">Bağlı Hesaplar</h4>
+                            <div id="userConnections" class="badge-list"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== SUNUCU BİLGİ ÇEKİCİ ===== -->
+            <section id="guildTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>Sunucu Bilgi Çekici</h2>
+                    <p>Sunucu ID ile detaylı bilgileri görüntüleyin.</p>
+                </div>
+                <div class="row">
+                    <div class="form-group half">
+                        <label>Token Türü</label>
+                        <select id="guildTokenType" class="zeta-input">
+                            <option value="bot">Bot Token</option>
+                            <option value="user">Self Token</option>
+                        </select>
+                    </div>
+                    <div class="form-group half">
+                        <label>Sunucu ID</label>
+                        <input type="text" id="guildIdInput" class="zeta-input" placeholder="Sunucu ID...">
+                    </div>
+                </div>
+                <button class="zeta-btn success" onclick="runGuildInfo()">🛡️ Sunucu Bilgilerini Çek</button>
+                <div id="guildResult" class="result-box glow-idle mt-20">
+                    <div id="guildStatusText">Aksiyon bekleniyor...</div>
+                    <div id="guildDetailCard" class="detail-card" style="display:none;">
+                        <div class="detail-card-banner" id="guildBannerArea"></div>
+                        <div class="detail-card-header">
+                            <img id="guildDetailIcon" class="detail-avatar" src="" alt="">
+                            <div class="detail-name-area">
+                                <h3 id="guildDetailName">—</h3>
+                                <span id="guildDetailDesc" class="detail-tag">—</span>
+                            </div>
+                        </div>
+                        <div class="detail-grid">
+                            <div class="detail-stat">
+                                <span class="stat-label">ID</span>
+                                <span class="stat-value" id="guildDetailId">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Oluşturulma</span>
+                                <span class="stat-value" id="guildDetailCreated">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Üye Sayısı</span>
+                                <span class="stat-value" id="guildDetailMembers">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Çevrimiçi</span>
+                                <span class="stat-value" id="guildDetailOnline">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Boost Seviyesi</span>
+                                <span class="stat-value" id="guildDetailBoostLevel">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Boost Sayısı</span>
+                                <span class="stat-value" id="guildDetailBoosts">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Doğrulama</span>
+                                <span class="stat-value" id="guildDetailVerification">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Sahip ID</span>
+                                <span class="stat-value" id="guildDetailOwner">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Rol Sayısı</span>
+                                <span class="stat-value" id="guildDetailRoles">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Emoji Sayısı</span>
+                                <span class="stat-value" id="guildDetailEmojis">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Vanity URL</span>
+                                <span class="stat-value" id="guildDetailVanity">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== VANITY URL SORGULAMA ===== -->
+            <section id="vanityTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>Özel URL (Vanity) Sorgulama</h2>
+                    <p>Bir Discord sunucusunun özel bağlantı linkinin (/link) alınabilir olup olmadığını kontrol edin.</p>
+                </div>
+                <div class="form-group">
+                    <label>Vanity URL Kodu (örn: atatv44)</label>
+                    <div class="vanity-input-wrapper">
+                        <span class="vanity-prefix">discord.gg/</span>
+                        <input type="text" id="vanityInput" class="zeta-input vanity-input" placeholder="sunucu_url...">
+                    </div>
+                </div>
+                <button class="zeta-btn primary" onclick="runVanityCheck()">🔗 Durumu Sorgula</button>
+                <div id="vanityResult" class="result-box glow-idle mt-20" style="text-align: center; padding: 30px;">
+                    <div id="vanityStatusText" style="font-size: 16px;">Sorgulama bekleniyor...</div>
+                    <div id="vanityGuildInfo" style="margin-top: 15px; display: none; color: #a1a1aa; font-size: 13px;"></div>
+                </div>
+            </section>
+
+            <!-- ===== WEBHOOK YÖNETİCİSİ ===== -->
+            <section id="webhookTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>Webhook Yöneticisi</h2>
+                    <p>Discord Webhook URL'si üzerinden mesaj veya embed gönderin.</p>
+                </div>
+                <div class="form-group">
+                    <label>Webhook URL *</label>
+                    <input type="text" id="webhookUrl" class="zeta-input" placeholder="https://discord.com/api/webhooks/...">
+                </div>
+                <div class="row">
+                    <div class="form-group half">
+                        <label>Kullanıcı Adı (Opsiyonel)</label>
+                        <input type="text" id="webhookUsername" class="zeta-input" placeholder="Bot Adı">
+                    </div>
+                    <div class="form-group half">
+                        <label>Avatar URL (Opsiyonel)</label>
+                        <input type="text" id="webhookAvatar" class="zeta-input" placeholder="https://...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Mesaj İçeriği</label>
+                    <textarea id="webhookContent" class="zeta-input zeta-textarea" rows="3" placeholder="Mesajınız..."></textarea>
+                </div>
+                <div class="panel-header" style="margin-top:20px; margin-bottom:10px; padding-bottom:5px;">
+                    <h2 style="font-size: 16px;">Embed Ayarları (Opsiyonel)</h2>
+                </div>
+                <div class="row">
+                    <div class="form-group half">
+                        <label>Embed Başlığı</label>
+                        <input type="text" id="webhookEmbedTitle" class="zeta-input" placeholder="Başlık...">
+                    </div>
+                    <div class="form-group half">
+                        <label>Embed Rengi (Hex)</label>
+                        <input type="text" id="webhookEmbedColor" class="zeta-input" placeholder="#5865F2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Embed Açıklaması</label>
+                    <textarea id="webhookEmbedDesc" class="zeta-input zeta-textarea" rows="2" placeholder="Açıklama..."></textarea>
+                </div>
+                <button class="zeta-btn primary" onclick="runWebhookSend()">🪝 Gönder</button>
+                <div id="webhookResult" class="result-box glow-idle mt-20">Aksiyon bekleniyor...</div>
+            </section>
+
+            <!-- ===== DAVET ÇÖZÜMLEYİCİ ===== -->
+            <section id="inviteTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>Davet Çözümleyici</h2>
+                    <p>Discord davet linki veya kodu ile sunucu detaylarını görüntüleyin.</p>
+                </div>
+                <div class="form-group">
+                    <label>Davet Kodu veya URL'si</label>
+                    <input type="text" id="inviteInput" class="zeta-input" placeholder="Örn: discord.gg/xyz veya xyz">
+                </div>
+                <button class="zeta-btn primary" onclick="runInviteResolve()">🔗 Çözümle</button>
+                <div id="inviteResult" class="result-box glow-idle mt-20">
+                    <div id="inviteStatusText">Aksiyon bekleniyor...</div>
+                    <div id="inviteDetailCard" class="detail-card" style="display:none; margin-top: 15px;">
+                        <div class="detail-card-header" style="margin-top: 0;">
+                            <img id="inviteDetailIcon" class="detail-avatar" src="" alt="" style="width: 48px; height: 48px;">
+                            <div class="detail-name-area" style="padding-top: 0;">
+                                <h3 id="inviteDetailName">—</h3>
+                                <span id="inviteDetailCode" class="detail-tag">—</span>
+                            </div>
+                        </div>
+                        <div class="detail-grid">
+                            <div class="detail-stat">
+                                <span class="stat-label">Sunucu ID</span>
+                                <span class="stat-value" id="inviteDetailId">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Davet Eden</span>
+                                <span class="stat-value" id="inviteDetailInviter">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Üye Sayısı</span>
+                                <span class="stat-value" id="inviteDetailMembers">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Çevrimiçi</span>
+                                <span class="stat-value" id="inviteDetailOnline">—</span>
+                            </div>
+                            <div class="detail-stat">
+                                <span class="stat-label">Bitiş Tarihi</span>
+                                <span class="stat-value" id="inviteDetailExpires">—</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== SNOWFLAKE DECODER ===== -->
+            <section id="snowflakeTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>Snowflake Decoder</h2>
+                    <p>Discord ID'sini (Sunucu, Kullanıcı, Mesaj vb.) çözümleyerek oluşturulma tarihini bulun.</p>
+                </div>
+                <div class="form-group">
+                    <label>Discord ID</label>
+                    <input type="text" id="snowflakeInput" class="zeta-input" placeholder="Örn: 123456789012345678">
+                </div>
+                <button class="zeta-btn primary" onclick="runSnowflakeDecode()">❄️ Çözümle</button>
+                <div id="snowflakeResult" class="result-box glow-idle mt-20">
+                    <div id="snowflakeStatusText">Aksiyon bekleniyor...</div>
+                    <div id="snowflakeDetails" style="display:none; margin-top: 15px;">
+                        <p style="margin-bottom: 5px;"><strong>Oluşturulma (UTC):</strong> <span id="sfDate" style="color:#e4e4e7;">—</span></p>
+                        <p style="margin-bottom: 5px;"><strong>Timestamp:</strong> <span id="sfTimestamp" style="color:#e4e4e7;">—</span></p>
+                        <p style="margin-bottom: 5px;"><strong>Internal Worker:</strong> <span id="sfWorker" style="color:#e4e4e7;">—</span></p>
+                        <p style="margin-bottom: 5px;"><strong>Internal Process:</strong> <span id="sfProcess" style="color:#e4e4e7;">—</span></p>
+                        <p><strong>Increment:</strong> <span id="sfIncrement" style="color:#e4e4e7;">—</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== TOKEN DECODER ===== -->
+            <section id="tokenDecTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>Token Decoder</h2>
+                    <p>Token içindeki Base64 şifreli bilgileri api isteği atmadan lokal olarak çözer.</p>
+                </div>
+                <div class="form-group">
+                    <label>Discord Token</label>
+                    <input type="text" id="tokenDecInput" class="zeta-input" placeholder="Token yapıştırın...">
+                </div>
+                <button class="zeta-btn primary" onclick="runTokenDecode()">🔓 Token'ı Çöz</button>
+                <div id="tokenDecResult" class="result-box glow-idle mt-20">
+                    <div id="tokenDecStatusText">Aksiyon bekleniyor...</div>
+                    <div id="tokenDecDetails" style="display:none; margin-top: 15px;">
+                        <p style="margin-bottom: 5px;"><strong>User ID:</strong> <span id="tdUserId" style="color:#e4e4e7;">—</span></p>
+                        <p style="margin-bottom: 5px;"><strong>Oluşturulma (Tahmini):</strong> <span id="tdCreated" style="color:#e4e4e7;">—</span></p>
+                        <p style="margin-bottom: 5px;"><strong>Kısım 1 (Base64 ID):</strong> <span id="tdPart1" style="color:#a1a1aa; font-family: monospace;">—</span></p>
+                        <p><strong>Kısım 2 (Base64 Time):</strong> <span id="tdPart2" style="color:#a1a1aa; font-family: monospace;">—</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== EMOJİ İNDİRİCİ ===== -->
+            <section id="emojiTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>Emoji İndirici</h2>
+                    <p>Bir sunucudaki tüm emojileri listeleyin ve tek tıkla bilgisayarınıza indirin.</p>
+                </div>
+                <div class="row">
+                    <div class="form-group half">
+                        <label>Token Türü</label>
+                        <select id="emojiTokenType" class="zeta-input">
+                            <option value="bot">Bot Token</option>
+                            <option value="user">Self Token</option>
+                        </select>
+                    </div>
+                    <div class="form-group half">
+                        <label>Sunucu ID</label>
+                        <input type="text" id="emojiGuildId" class="zeta-input" placeholder="Sunucu ID...">
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button class="zeta-btn primary" onclick="runEmojiFetch()">🔍 Emojileri Listele</button>
+                    <button class="zeta-btn success" id="btnEmojiDownloadBulk" onclick="runEmojiDownloadBulk()" style="display:none;">💾 Tümünü İndir</button>
+                </div>
+                <div id="emojiResult" class="result-box glow-idle mt-20">
+                    <div id="emojiStatusText">Aksiyon bekleniyor...</div>
+                    <div id="emojiListContainer" style="display:none; margin-top: 15px; max-height: 200px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 8px;">
+                        <!-- Emojiler buraya yüklenecek -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== SERVER CLONER ===== -->
+            <section id="clonerTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>Server Cloner</h2>
+                    <p>Kaynak sunucunun rol, kanal, emoji, afiş, ayar ve seslerini hedef sunucuya %100 kopyalar.</p>
+                </div>
+                <div class="row">
+                    <div class="form-group third">
+                        <label>Self Token *</label>
+                        <input type="text" id="clonerTokenInput" class="zeta-input" placeholder="Token giriniz...">
+                    </div>
+                    <div class="form-group third">
+                        <label>Kaynak Sunucu ID *</label>
+                        <input type="text" id="clonerSourceId" class="zeta-input" placeholder="1234567890...">
+                    </div>
+                    <div class="form-group third">
+                        <label>Hedef Sunucu ID *</label>
+                        <input type="text" id="clonerTargetId" class="zeta-input" placeholder="1234567890...">
+                    </div>
+                </div>
+                <button class="zeta-btn primary" id="btnStartCloner" onclick="runServerCloner()">🔄 Kopyalamayı Başlat</button>
+                <div id="clonerResult" class="result-box glow-idle mt-20">
+                    <div id="clonerStatusText" style="font-family: monospace; white-space: pre-wrap;">Aksiyon bekleniyor...</div>
+                    <div id="clonerProgressArea" style="display:none; margin-top: 15px;">
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar-track">
+                                <div id="clonerProgressFill" class="progress-bar-fill" style="width: 0%"></div>
+                            </div>
+                            <span id="clonerProgressText" class="progress-text">0%</span>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 13px; color: #a1a1aa;">
+                            <strong>Tahmini Süre: </strong><span id="clonerEtaText" style="color:#e4e4e7;">Hesaplanıyor...</span>
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ===== İŞLEM GEÇMİŞİ ===== -->
+            <section id="historyTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>İşlem Geçmişi</h2>
+                    <p>Yapılan tüm sorguların kayıtları burada gösterilir.</p>
+                </div>
+                <button class="zeta-btn danger" onclick="clearHistory()">🗑️ Geçmişi Temizle</button>
+                <div id="historyResult" class="result-box glow-idle mt-20">
+                    <div id="historyList" class="history-timeline">Yükleniyor...</div>
+                </div>
+            </section>
+
+            <!-- ===== AYARLAR ===== -->
+            <section id="settingsTab" class="glass-panel">
+                <div class="panel-header">
+                    <h2>Sistem Ayarları</h2>
+                    <p>Varsayılan tokenlerinizi buraya kaydedin. Bilgiler sadece sizin bilgisayarınızda (settings.json) tutulur.</p>
+                </div>
+                <div class="form-group">
+                    <label>Kayıtlı Bot Token</label>
+                    <input type="password" id="setBotToken" class="zeta-input" placeholder="MTE...">
+                </div>
+                <div class="form-group">
+                    <label>Kayıtlı Self Token</label>
+                    <input type="password" id="setSelfToken" class="zeta-input" placeholder="Kullanıcı tokeni...">
+                </div>
+                <button class="zeta-btn primary" onclick="saveSettings()">Ayarları Kaydet</button>
+                <div id="settingsResult" class="result-box glow-idle mt-20">Değişiklik bekleniyor...</div>
+            </section>
+
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
